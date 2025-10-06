@@ -1,0 +1,58 @@
+# Docker build artifacts
+target/
+*.jar
+*.war
+
+# Git
+.git
+.gitignore
+
+# IDE files
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+.eclipse/
+.metadata/
+.project
+.classpath
+.settings/
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+
+# Maven
+.mvn/wrapper/maven-wrapper.jar
+.mvn/wrapper/maven-wrapper.properties
+
+# Documentation
+*.md
+README*
+documents/
+*.png
+*.excalidraw
+
+# Test files
+src/test/
+
+# Development tools
+mvnw
+mvnw.cmd
