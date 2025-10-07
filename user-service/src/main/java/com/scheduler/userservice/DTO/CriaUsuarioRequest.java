@@ -30,7 +30,6 @@ public class CriaUsuarioRequest {
     @NotBlank(message = "Username não pode ser vazio")
     private String username;
 
-    @NotBlank(message = "Roles não pode ser vazio")
     @Size(min = 1, message = "Deve ter pelo menos uma role")
     private Set<String> roles; 
 
