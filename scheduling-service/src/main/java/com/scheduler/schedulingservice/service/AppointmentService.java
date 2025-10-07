@@ -11,6 +11,7 @@ import com.scheduler.schedulingservice.repositories.AppointmentRepository;
 import com.scheduler.schedulingservice.client.UserServiceClient;
 import com.scheduler.schedulingservice.constants.UserRoles;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -63,14 +64,6 @@ public class AppointmentService {
         return hasRole(UserRoles.MEDICO) || hasRole(UserRoles.ENFERMEIRO);
     }
 
-    private boolean canCreate() {
-        return hasRole(UserRoles.ENFERMEIRO);
-    }
-
-    private boolean canEdit() {
-        return hasRole(UserRoles.MEDICO);
-    }
-
     public Optional<AppointmentDto> findById(Long id) {
         Optional<Appointment> opt = appointmentRepository.findById(id);
         if (opt.isEmpty()) return Optional.empty();
@@ -84,13 +77,8 @@ public class AppointmentService {
         return Optional.of(mapToDto(appointment));
     }
 
+    @PreAuthorize("hasAnyRole('MEDICO', 'ENFERMEIRO')")
     public List<AppointmentDto> findAll() {
-        if (!canSeeAll()) {
-            Long userId = getAuthenticatedUserId();
-            logger.warn("Acesso negado: Paciente {} tentou acessar todas as consultas", userId);
-            throw new SecurityException("Paciente não pode acessar todas as consultas");
-        }
-
         return appointmentRepository.findAll().stream()
             .map(this::mapToDto)
             .toList();
@@ -108,24 +96,15 @@ public class AppointmentService {
             .toList();
     }
 
+    @PreAuthorize("hasAnyRole('MEDICO', 'ENFERMEIRO')")
     public List<AppointmentDto> findByDoctorId(Long doctorId) {
-        if (!canSeeAll()) {
-            Long userId = getAuthenticatedUserId();
-            logger.warn("Acesso negado: Paciente {} tentou acessar consultas de médico (doctorId: {})", userId, doctorId);
-            throw new SecurityException("Paciente não pode acessar consultas de médicos");
-        }
-        // Médicos e enfermeiros podem acessar
         return appointmentRepository.findByDoctorId(doctorId).stream()
             .map(this::mapToDto)
             .toList();
     }
 
+    @PreAuthorize("hasAnyRole('MEDICO', 'ENFERMEIRO')")
     public AppointmentDto createAppointment(CreateAppointmentDto input) {
-        if (!canCreate()) {
-            Long userId = getAuthenticatedUserId();
-            logger.warn("Acesso negado: Usuário {} tentou registrar consulta sem permissão (roles insuficientes)", userId);
-            throw new SecurityException("Apenas médicos ou enfermeiros podem registrar consultas");
-        }
         validateAppointmentInput(input);
         validateUserRoles(input.getPatientId(), input.getDoctorId());
         Appointment appointment = new Appointment();
@@ -135,12 +114,8 @@ public class AppointmentService {
         return mapToDto(appointmentRepository.save(appointment));
     }
 
+    @PreAuthorize("hasAnyRole('MEDICO', 'ENFERMEIRO')")
     public Optional<AppointmentDto> updateAppointment(Long id, UpdateAppointmentDto input) {
-        if (!canEdit()) {
-            Long userId = getAuthenticatedUserId();
-            logger.warn("Acesso negado: Usuário {} tentou editar consulta {} sem permissão (roles insuficientes)", userId, id);
-            throw new SecurityException("Apenas médicos ou enfermeiros podem editar consultas");
-        }
         return appointmentRepository.findById(id)
             .map(appointment -> {
                 if (input.getPatientId() != null) {
@@ -156,13 +131,8 @@ public class AppointmentService {
             });
     }
 
+    @PreAuthorize("hasAnyRole('MEDICO', 'ENFERMEIRO')")
     public boolean deleteAppointment(Long id) {
-        if (!canEdit() && !canCreate()) {
-            Long userId = getAuthenticatedUserId();
-            logger.warn("Acesso negado: Usuário {} tentou deletar consulta {} sem permissão (roles insuficientes)", userId, id);
-            throw new SecurityException("Apenas médicos ou enfermeiros podem deletar consultas");
-        }
-
         if (appointmentRepository.existsById(id)) {
             appointmentRepository.deleteById(id);
             return true;
