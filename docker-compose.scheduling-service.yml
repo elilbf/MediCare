@@ -29,7 +29,6 @@ services:
       POSTGRES_PASSWORD: scheduler_pass
     volumes:
       - scheduler_postgres_data:/var/lib/postgresql/data
-      - ./documents/init-multiple-databases.sh:/docker-entrypoint-initdb.d/init-multiple-databases.sh
     ports:
       - "5432:5432"
     networks:

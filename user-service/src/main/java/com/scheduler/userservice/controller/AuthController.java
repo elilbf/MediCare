@@ -26,7 +26,6 @@ import jakarta.validation.Valid;
 @Slf4j
 @RequiredArgsConstructor  // Lombok gera construtor com dependências final
 public class AuthController {
-
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
     private final UserDetailsService userDetailsService;
@@ -60,30 +59,5 @@ public class AuthController {
             userDetails.getUsername(),
             userDetails.getAuthorities().toString()
         ));
-    }
-
-    @PostMapping("/validate")
-    public ResponseEntity<?> validateToken(@RequestBody String token) {
-        try {
-            var claims = jwtUtil.extractAllClaims(token);
-            String username = claims.getSubject();
-            Object rolesObj = claims.get("roles");
-            String roles;
-            if (rolesObj instanceof String) {
-                roles = (String) rolesObj;
-            } else if (rolesObj instanceof java.util.List<?>) {
-                @SuppressWarnings("unchecked")
-                java.util.List<Object> rolesList = (java.util.List<Object>) rolesObj;
-                roles = String.join(",", rolesList.stream().map(Object::toString).toList());
-            } else {
-                roles = "";
-            }
-            // TODO: Evitar consulta desnecessária ao banco passando ID no token
-            Usuario usuario = usuarioRepository.findByUsername(username).orElse(null);
-            Long id = usuario != null ? usuario.getId() : null;
-            return ResponseEntity.ok(new JWTResponse(token, id, username, roles));
-        } catch (Exception e) {
-            return ResponseEntity.status(401).body(new ErrorResponse("Token inválido ou expirado"));
-        }
     }
 }
