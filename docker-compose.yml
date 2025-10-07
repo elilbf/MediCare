@@ -70,7 +70,7 @@ services:
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
     ports:
-      - "8081:8080"
+      - "8081:8081"
     networks:
       - medicare-network
     restart: unless-stopped
