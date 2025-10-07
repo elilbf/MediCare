@@ -27,5 +27,6 @@ public class NotificationPersistenceAdapter implements INotificationPersistenceP
 
         log.info("[NotificationPersistenceAdapter] - Salvando notificação para o paciente: {}", entity.getNomePaciente());
         notificationRepository.save(entity);
+        log.info("[NotificationPersistenceAdapter] - Notificação salva com sucesso para o paciente: {}", entity.getNomePaciente());
     }
 }
