@@ -33,50 +33,31 @@ public class UsuarioController {
     @PostMapping("/criar")
     public ResponseEntity<Usuario> criarUsuario(@RequestBody CriaUsuarioRequest usuario) {
         log.info("Criando usuário: {}", usuario);
-        
         if(usuario.getNome() == null || usuario.getEmail() == null || usuario.getSenha() == null || usuario.getUsername() == null) {
             throw new IllegalArgumentException("Nome, email, username e senha são obrigatórios");
         }
-        
-        try{
-            Usuario NovoUsuario = usuarioService.criarUsuario(usuario);     
-            return ResponseEntity.status(HttpStatus.CREATED).body(NovoUsuario);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
-        }
-
+        Usuario novoUsuario = usuarioService.criarUsuario(usuario);
+        return ResponseEntity.status(HttpStatus.CREATED).body(novoUsuario);
     }
     
     @GetMapping("/buscar/{id}")
     public ResponseEntity<Usuario> buscarUsuarioPorId(@PathVariable Long id) {
         log.info("Buscando usuário por id: {}", id);
-        try {
-            Usuario usuario = usuarioService.buscarUsuarioPorId(id);
-
-            if (usuario == null) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-            }
-            
-            return ResponseEntity.ok(usuario);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        Usuario usuario = usuarioService.buscarUsuarioPorId(id);
+        if (usuario == null) {
+            throw new IllegalArgumentException("Usuário não encontrado para o id: " + id);
         }
+        return ResponseEntity.ok(usuario);
     }
 
     @PutMapping("/atualizar/{id}")
     public ResponseEntity<Usuario> atualizarUsuario(@PathVariable Long id, @Valid @RequestBody AtualizaUsuarioRequest atualizaUsuarioRequest) {
         log.info("Atualizando usuário id {}: {}", id, atualizaUsuarioRequest);
-        try {
-            Usuario usuarioAtualizado = usuarioService.atualizarUsuario(id, atualizaUsuarioRequest);
-            if (usuarioAtualizado == null) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-            }
-            return ResponseEntity.ok(usuarioAtualizado);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        Usuario usuarioAtualizado = usuarioService.atualizarUsuario(id, atualizaUsuarioRequest);
+        if (usuarioAtualizado == null) {
+            throw new IllegalArgumentException("Usuário não encontrado para o id: " + id);
         }
+        return ResponseEntity.ok(usuarioAtualizado);
     }
 
 }
