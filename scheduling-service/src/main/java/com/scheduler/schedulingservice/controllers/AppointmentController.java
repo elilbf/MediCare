@@ -10,6 +10,7 @@ import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.stereotype.Controller;
 
+import jakarta.validation.Valid;
 import java.util.List;
 
 @Controller
@@ -39,12 +40,12 @@ public class AppointmentController {
     }
 
     @MutationMapping
-    public AppointmentDto createAppointment(@Argument CreateAppointmentDto input) {
+    public AppointmentDto createAppointment(@Valid @Argument CreateAppointmentDto input) {
         return appointmentService.createAppointment(input);
     }
 
     @MutationMapping
-    public AppointmentDto updateAppointment(@Argument Long id, @Argument UpdateAppointmentDto input) {
+    public AppointmentDto updateAppointment(@Argument Long id, @Valid @Argument UpdateAppointmentDto input) {
         return appointmentService.updateAppointment(id, input).orElse(null);
     }
 

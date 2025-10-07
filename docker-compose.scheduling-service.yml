@@ -1,0 +1,40 @@
+services:
+  scheduling-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        SERVICE_NAME: scheduling-service
+    container_name: medicare-scheduling-service
+    depends_on:
+      - scheduler-postgres
+      - kafka
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://scheduler-postgres:5432/scheduling-service
+      SPRING_DATASOURCE_USERNAME: scheduler_user
+      SPRING_DATASOURCE_PASSWORD: scheduler_pass
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+    ports:
+      - "8081:8081"
+    networks:
+      - medicare-network
+    restart: unless-stopped
+
+  scheduler-postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: scheduling-service
+      POSTGRES_USER: scheduler_user
+      POSTGRES_PASSWORD: scheduler_pass
+    volumes:
+      - scheduler_postgres_data:/var/lib/postgresql/data
+      - ./documents/init-multiple-databases.sh:/docker-entrypoint-initdb.d/init-multiple-databases.sh
+    ports:
+      - "5432:5432"
+    networks:
+      - medicare-network
+    restart: unless-stopped
+
+volumes:
+  scheduler_postgres_data:

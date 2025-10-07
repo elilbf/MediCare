@@ -9,4 +9,12 @@
     <artifactId>user-service</artifactId>
     <name>Archetype - user-service</name>
     <url>http://maven.apache.org</url>
+    <!-- Dependência do PostgreSQL -->
+    <dependencies>
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>42.7.3</version>
+        </dependency>
+    </dependencies>
 </project>
