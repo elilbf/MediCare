@@ -26,7 +26,6 @@ import jakarta.validation.Valid;
 @Slf4j
 @RequiredArgsConstructor  // Lombok gera construtor com dependências final
 public class AuthController {
-
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
     private final UserDetailsService userDetailsService;
