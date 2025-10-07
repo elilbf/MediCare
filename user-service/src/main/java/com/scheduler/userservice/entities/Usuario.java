@@ -1,10 +1,7 @@
 package com.scheduler.userservice.entities;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.Set;
 
@@ -29,6 +26,7 @@ public class Usuario {
     @Column(nullable = false)
     private String nome;
 
+    @NonNull
     @Column(nullable = false)
     private String username;
 

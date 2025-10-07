@@ -49,40 +49,14 @@ public class AuthController {
             log.error("Erro ao realizar login para usuário: {}", loginRequest.getUsername(), e);
             return ResponseEntity.badRequest().body(new ErrorResponse("Erro ao realizar login"));
         }
-        final UserDetails userDetails = userDetailsService.loadUserByUsername(loginRequest.getUsername());
-        final String jwt = jwtUtil.generateToken(userDetails);
-        Usuario usuario = usuarioRepository.findByUsername(loginRequest.getUsername()).orElse(null);
-        Long id = usuario != null ? usuario.getId() : null;
+
+        final Usuario user = usuarioRepository.findByUsername(loginRequest.getUsername()).orElse(null);
+        final String jwt = jwtUtil.generateToken(user.getUsername(), user.getId(), user.getRoles());
+
         return ResponseEntity.ok(new JWTResponse(
             jwt, 
-            id,
-            userDetails.getUsername(),
-            userDetails.getAuthorities().toString()
+            user.getUsername(),
+            user.getRoles().toString()
         ));
-    }
-
-    @PostMapping("/validate")
-    public ResponseEntity<?> validateToken(@RequestBody String token) {
-        try {
-            var claims = jwtUtil.extractAllClaims(token);
-            String username = claims.getSubject();
-            Object rolesObj = claims.get("roles");
-            String roles;
-            if (rolesObj instanceof String) {
-                roles = (String) rolesObj;
-            } else if (rolesObj instanceof java.util.List<?>) {
-                @SuppressWarnings("unchecked")
-                java.util.List<Object> rolesList = (java.util.List<Object>) rolesObj;
-                roles = String.join(",", rolesList.stream().map(Object::toString).toList());
-            } else {
-                roles = "";
-            }
-            // TODO: Evitar consulta desnecessária ao banco passando ID no token
-            Usuario usuario = usuarioRepository.findByUsername(username).orElse(null);
-            Long id = usuario != null ? usuario.getId() : null;
-            return ResponseEntity.ok(new JWTResponse(token, id, username, roles));
-        } catch (Exception e) {
-            return ResponseEntity.status(401).body(new ErrorResponse("Token inválido ou expirado"));
-        }
     }
 }
