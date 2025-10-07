@@ -5,14 +5,17 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.scheduler.userservice.DTO.AtualizaUsuarioRequest;
 import com.scheduler.userservice.DTO.CriaUsuarioRequest;
 import com.scheduler.userservice.entities.Usuario;
 import com.scheduler.userservice.service.UsuarioService;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 
 @RestController
@@ -57,6 +60,22 @@ public class UsuarioController {
             return ResponseEntity.ok(usuario);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        }
+    }
+
+    @PutMapping("/atualizar/{id}")
+    public ResponseEntity<Usuario> atualizarUsuario(@PathVariable Long id, @Valid @RequestBody AtualizaUsuarioRequest atualizaUsuarioRequest) {
+        log.info("Atualizando usuário id {}: {}", id, atualizaUsuarioRequest);
+        try {
+            Usuario usuarioAtualizado = usuarioService.atualizarUsuario(id, atualizaUsuarioRequest);
+            if (usuarioAtualizado == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+            }
+            return ResponseEntity.ok(usuarioAtualizado);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
 
