@@ -1,5 +1,6 @@
 package com.scheduler.notificationservice.domain.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.scheduler.notificationservice.dto.NotificationDTO;
@@ -24,11 +25,15 @@ public class NotificationInsertUseCase implements INotificationInsertUseCase {
 
     @Override
     public void syncNotification(String message) {
-        NotificationDTO notificationDTO = mapper.convertValue(message, NotificationDTO.class);
-        notificationPersistencePort.insertMessage(notificationDTO);
+        try {
+            NotificationDTO notificationDTO = mapper.readValue(message, NotificationDTO.class);
+            notificationPersistencePort.insertMessage(notificationDTO);
 
-        log.info("[NotificationInsertUseCase] - Notificação enviada para o paciente: {}, no email: {}",
-                notificationDTO.getNomePaciente(), notificationDTO.getDataHoraConsulta());
+            log.info("[NotificationInsertUseCase] - Notificação enviada para o paciente: {}, no email: {}",
+                    notificationDTO.getNomePaciente(), notificationDTO.getEmailPaciente());
+        } catch (JsonProcessingException e) {
+            log.error("Error processing message: {}", message, e);
+        }
     }
 
 }
