@@ -64,9 +64,9 @@ services:
       - scheduler-postgres
       - kafka
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/scheduling-service
-      SPRING_DATASOURCE_USERNAME: medicare_user
-      SPRING_DATASOURCE_PASSWORD: medicare_password
+      SPRING_DATASOURCE_URL: jdbc:postgresql://scheduler-postgres:5432/scheduling-service
+      SPRING_DATASOURCE_USERNAME: scheduler_user
+      SPRING_DATASOURCE_PASSWORD: scheduler_pass
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
     ports:
