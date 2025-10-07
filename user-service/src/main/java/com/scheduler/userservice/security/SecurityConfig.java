@@ -1,5 +1,6 @@
 package com.scheduler.userservice.security;
 
+import com.scheduler.userservice.constants.UserRoles;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -35,10 +36,10 @@ public class SecurityConfig {
                                "/error", "/usuario/**").permitAll()
                 
                 // Endpoints com roles específicas
-                .requestMatchers("/medico/**").hasRole("MEDICO")
-                .requestMatchers("/enfermeiro/**").hasRole("ENFERMEIRO")
-                .requestMatchers("/paciente/**").hasRole("PACIENTE")
-                
+                .requestMatchers("/medico/**").hasRole(UserRoles.MEDICO)
+                .requestMatchers("/enfermeiro/**").hasRole(UserRoles.ENFERMEIRO)
+                .requestMatchers("/paciente/**").hasRole(UserRoles.PACIENTE)
+
                 // Qualquer outra requisição precisa estar autenticada
                 .anyRequest().authenticated()
             );

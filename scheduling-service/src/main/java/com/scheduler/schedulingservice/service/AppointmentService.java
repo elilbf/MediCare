@@ -9,6 +9,7 @@ import com.scheduler.schedulingservice.dto.UsuarioDto;
 import com.scheduler.schedulingservice.entities.Appointment;
 import com.scheduler.schedulingservice.repositories.AppointmentRepository;
 import com.scheduler.schedulingservice.client.UserServiceClient;
+import com.scheduler.schedulingservice.constants.UserRoles;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -112,7 +113,7 @@ public class AppointmentService {
             throw new IllegalArgumentException("Paciente com ID " + patientId + " não encontrado ou serviço indisponível");
         }
         
-        if (patient.getRoles() == null || !patient.getRoles().contains("PACIENTE")) {
+        if (patient.getRoles() == null || !patient.getRoles().contains(UserRoles.PACIENTE)) {
             throw new IllegalArgumentException("Usuário com ID " + patientId + " não é um paciente");
         }
         
@@ -121,7 +122,7 @@ public class AppointmentService {
             throw new IllegalArgumentException("Médico com ID " + doctorId + " não encontrado ou serviço indisponível");
         }
         
-        if (doctor.getRoles() == null || !doctor.getRoles().contains("MEDICO")) {
+        if (doctor.getRoles() == null || !doctor.getRoles().contains(UserRoles.MEDICO)) {
             throw new IllegalArgumentException("Usuário com ID " + doctorId + " não é um médico");
         }
     }

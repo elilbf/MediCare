@@ -10,7 +10,6 @@ import org.springframework.validation.FieldError;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.List;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
