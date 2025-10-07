@@ -31,11 +31,8 @@ public class UsuarioController {
     }
     
     @PostMapping("/criar")
-    public ResponseEntity<Usuario> criarUsuario(@RequestBody CriaUsuarioRequest usuario) {
+    public ResponseEntity<Usuario> criarUsuario(@Valid @RequestBody CriaUsuarioRequest usuario) {
         log.info("Criando usuário: {}", usuario);
-        if(usuario.getNome() == null || usuario.getEmail() == null || usuario.getSenha() == null || usuario.getUsername() == null) {
-            throw new IllegalArgumentException("Nome, email, username e senha são obrigatórios");
-        }
         Usuario novoUsuario = usuarioService.criarUsuario(usuario);
         return ResponseEntity.status(HttpStatus.CREATED).body(novoUsuario);
     }
