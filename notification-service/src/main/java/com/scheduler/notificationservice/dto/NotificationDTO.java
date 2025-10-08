@@ -1,11 +1,10 @@
 package com.scheduler.notificationservice.dto;
 
-import lombok.Builder;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.ToString;
 
-@ToString
 @Getter
 @Setter
 public class NotificationDTO {
@@ -13,4 +12,14 @@ public class NotificationDTO {
     private String emailPaciente;
     private String nomeMedico;
     private String dataHoraConsulta;
+
+    @Override
+    public String toString() {
+        try {
+            return new ObjectMapper().writeValueAsString(this);
+        } catch (JsonProcessingException e) {
+            return "Error converting to JSON: " + e.getMessage();
+        }
+    }
+
 }
