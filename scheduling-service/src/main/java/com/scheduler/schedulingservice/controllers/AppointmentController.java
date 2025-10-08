@@ -20,39 +20,75 @@ public class AppointmentController {
     @Autowired
     private AppointmentService appointmentService;
 
+    // Queries públicas para introspecção e health check
     @QueryMapping
+    public String health() {
+        return "OK - Scheduling Service is running";
+    }
+
+    @QueryMapping
+    public SchemaInfo schemaInfo() {
+        return new SchemaInfo("1.0", "MediCare Scheduling Service GraphQL API");
+    }
+
+    @QueryMapping
+    @PreAuthorize("hasAnyRole('ENFERMEIRO', 'MEDICO')")
     public AppointmentDto getAppointment(@Argument Long id) {
         return appointmentService.findById(id).orElse(null);
     }
 
     @QueryMapping
+    @PreAuthorize("hasAnyRole('ENFERMEIRO', 'MEDICO')")
     public List<AppointmentDto> getAllAppointments() {
         return appointmentService.findAll();
     }
 
     @QueryMapping
-    public List<AppointmentDto> getAppointmentsByPatient(@Argument Long patientId) {
-        return appointmentService.findByPatientId(patientId);
+    @PreAuthorize("@authz.isAdminOrSelf(authentication, #patientId)")
+    public List<AppointmentDto> getAppointmentsByPatient(@Argument Long patientId, @Argument String sinceDate, @Argument String untilDate) {
+        return appointmentService.findByPatientId(patientId, sinceDate, untilDate);
     }
 
     @QueryMapping
-    public List<AppointmentDto> getAppointmentsByDoctor(@Argument Long doctorId) {
-        return appointmentService.findByDoctorId(doctorId);
+    @PreAuthorize("hasAnyRole('ENFERMEIRO', 'MEDICO')")
+    public List<AppointmentDto> getAppointmentsByDoctor(@Argument Long doctorId, @Argument String sinceDate, @Argument String untilDate) {
+        return appointmentService.findByDoctorId(doctorId, sinceDate, untilDate);
     }
 
     @MutationMapping
-    @PreAuthorize("hasRole('ENFERMEIRO')")
+    @PreAuthorize("hasAnyRole('ENFERMEIRO', 'MEDICO')")
     public AppointmentDto createAppointment(@Valid @Argument CreateAppointmentDto input) {
         return appointmentService.createAppointment(input);
     }
 
     @MutationMapping
-    public AppointmentDto updateAppointment(@Argument Long id, @Valid @Argument UpdateAppointmentDto input) {
-        return appointmentService.updateAppointment(id, input).orElse(null);
+    @PreAuthorize("hasAnyRole('ENFERMEIRO', 'MEDICO')")
+    public AppointmentDto updateAppointment(@Valid @Argument UpdateAppointmentDto input) {
+        return appointmentService.updateAppointment(input.getId(), input).orElse(null);
     }
 
     @MutationMapping
+    @PreAuthorize("hasAnyRole('ENFERMEIRO', 'MEDICO')")
     public Boolean deleteAppointment(@Argument Long id) {
         return appointmentService.deleteAppointment(id);
+    }
+
+    // Classe interna para SchemaInfo
+    public static class SchemaInfo {
+        private final String version;
+        private final String description;
+
+        public SchemaInfo(String version, String description) {
+            this.version = version;
+            this.description = description;
+        }
+
+        public String getVersion() {
+            return version;
+        }
+
+        public String getDescription() {
+            return description;
+        }
     }
 }
