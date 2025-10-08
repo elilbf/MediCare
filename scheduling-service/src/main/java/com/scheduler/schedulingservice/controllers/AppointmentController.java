@@ -41,17 +41,19 @@ public class AppointmentController {
     }
 
     @MutationMapping
-    @PreAuthorize("hasRole('ENFERMEIRO')")
+    @PreAuthorize("hasAnyRole('ENFERMEIRO', 'MEDICO')")
     public AppointmentDto createAppointment(@Valid @Argument CreateAppointmentDto input) {
         return appointmentService.createAppointment(input);
     }
 
     @MutationMapping
+    @PreAuthorize("hasAnyRole('ENFERMEIRO', 'MEDICO')")
     public AppointmentDto updateAppointment(@Argument Long id, @Valid @Argument UpdateAppointmentDto input) {
         return appointmentService.updateAppointment(id, input).orElse(null);
     }
 
     @MutationMapping
+    @PreAuthorize("hasAnyRole('ENFERMEIRO', 'MEDICO')")
     public Boolean deleteAppointment(@Argument Long id) {
         return appointmentService.deleteAppointment(id);
     }

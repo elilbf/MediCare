@@ -37,42 +37,11 @@ public class AppointmentService {
     private UserServiceClient userServiceClient;
 
     private final DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
-    private static final Logger logger = LoggerFactory.getLogger(AppointmentService.class);
-
-    // TODO: extrair lógica de permissão para um componente separado
-    private boolean hasRole(String role) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null) return false;
-        return authentication.getAuthorities().stream()
-            .map(GrantedAuthority::getAuthority)
-            .anyMatch(auth -> auth.equals("ROLE_" + role));
-    }
-
-    private Long getAuthenticatedUserId() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || authentication.getName() == null) {
-            throw new SecurityException("Usuário não autenticado");
-        }
-        try {
-            return Long.parseLong(authentication.getName());
-        } catch (NumberFormatException e) {
-            throw new SecurityException("ID do usuário autenticado inválido: " + authentication.getName());
-        }
-    }
-
-    private boolean canSeeAll() {
-        return hasRole(UserRoles.MEDICO) || hasRole(UserRoles.ENFERMEIRO);
-    }
 
     public Optional<AppointmentDto> findById(Long id) {
         Optional<Appointment> opt = appointmentRepository.findById(id);
         if (opt.isEmpty()) return Optional.empty();
         Appointment appointment = opt.get();
-        Long userId = getAuthenticatedUserId();
-        if (!canSeeAll() && !appointment.getPatientId().equals(userId)) {
-            logger.warn("Acesso negado: Paciente {} tentou acessar consulta de outro paciente (consultaId: {})", userId, id);
-            throw new SecurityException("Paciente [" + userId + "] só pode acessar suas próprias consultas");
-        }
 
         return Optional.of(mapToDto(appointment));
     }
@@ -85,25 +54,17 @@ public class AppointmentService {
     }
 
     public List<AppointmentDto> findByPatientId(Long patientId) {
-        Long userId = getAuthenticatedUserId();
-        if (!canSeeAll() && !patientId.equals(userId)) {
-            logger.warn("Acesso negado: Paciente {} tentou acessar consultas de outro paciente (patientId: {})", userId, patientId);
-            throw new SecurityException("Paciente [" + userId + "] só pode acessar suas próprias consultas");
-        }
-        // Médicos e enfermeiros podem acessar qualquer paciente
         return appointmentRepository.findByPatientId(patientId).stream()
             .map(this::mapToDto)
             .toList();
     }
 
-    @PreAuthorize("hasAnyRole('MEDICO', 'ENFERMEIRO')")
     public List<AppointmentDto> findByDoctorId(Long doctorId) {
         return appointmentRepository.findByDoctorId(doctorId).stream()
             .map(this::mapToDto)
             .toList();
     }
 
-    @PreAuthorize("hasAnyRole('MEDICO', 'ENFERMEIRO')")
     public AppointmentDto createAppointment(CreateAppointmentDto input) {
         validateAppointmentInput(input);
         validateUserRoles(input.getPatientId(), input.getDoctorId());
@@ -114,7 +75,6 @@ public class AppointmentService {
         return mapToDto(appointmentRepository.save(appointment));
     }
 
-    @PreAuthorize("hasAnyRole('MEDICO', 'ENFERMEIRO')")
     public Optional<AppointmentDto> updateAppointment(Long id, UpdateAppointmentDto input) {
         return appointmentRepository.findById(id)
             .map(appointment -> {
@@ -131,7 +91,6 @@ public class AppointmentService {
             });
     }
 
-    @PreAuthorize("hasAnyRole('MEDICO', 'ENFERMEIRO')")
     public boolean deleteAppointment(Long id) {
         if (appointmentRepository.existsById(id)) {
             appointmentRepository.deleteById(id);
@@ -140,7 +99,6 @@ public class AppointmentService {
         return false;
     }
 
-    // TODO: should be @Valid in controller
     private void validateAppointmentInput(CreateAppointmentDto input) {
         if (input.getPatientId() == null) {
             throw new IllegalArgumentException("Patient ID is required");
