@@ -1,0 +1,18 @@
+server:
+  port: 8081
+
+spring:
+  datasource:
+    url: jdbc:postgresql://scheduler-postgres:5432/scheduling-service
+    driver-class-name: org.postgresql.Driver
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+  jpa:
+    hibernate:
+      ddl-auto: update
+
+user-service:
+  url: http://user-service:8082
+
+jwt:
+  secret: ${JWT_SECRET}

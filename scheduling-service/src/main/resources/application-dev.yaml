@@ -1,0 +1,19 @@
+server:
+  port: 8081
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/scheduling-service
+    driver-class-name: org.postgresql.Driver
+    username: scheduler_user
+    password: scheduler_pass
+  jpa:
+    hibernate:
+      ddl-auto: update
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+
+user-service:
+  url: http://localhost:8082
+
+jwt:
+  secret: dev-local-key-2024-fiap-tech-challenge
