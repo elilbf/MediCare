@@ -50,18 +50,38 @@ public class AppointmentService {
     public List<AppointmentDto> findByPatientId(Long patientId, String sinceDate, String untilDate) {
         LocalDateTime since = (sinceDate != null && !sinceDate.isBlank()) ? LocalDateTime.parse(sinceDate, formatter) : null;
         LocalDateTime until = (untilDate != null && !untilDate.isBlank()) ? LocalDateTime.parse(untilDate, formatter) : null;
-        return appointmentRepository.findByPatientIdWithDateRange(patientId, since, until).stream()
-            .map(this::mapToDto)
-            .toList();
+
+        List<Appointment> appointments;
+        if (since != null && until != null) {
+            appointments = appointmentRepository.findByPatientIdAndDateRange(patientId, since, until);
+        } else if (since != null) {
+            appointments = appointmentRepository.findByPatientIdSinceDate(patientId, since);
+        } else if (until != null) {
+            appointments = appointmentRepository.findByPatientIdUntilDate(patientId, until);
+        } else {
+            appointments = appointmentRepository.findByPatientId(patientId);
+        }
+
+        return appointments.stream().map(this::mapToDto).toList();
     }
 
 
     public List<AppointmentDto> findByDoctorId(Long doctorId, String sinceDate, String untilDate) {
         LocalDateTime since = (sinceDate != null && !sinceDate.isBlank()) ? LocalDateTime.parse(sinceDate, formatter) : null;
         LocalDateTime until = (untilDate != null && !untilDate.isBlank()) ? LocalDateTime.parse(untilDate, formatter) : null;
-        return appointmentRepository.findByDoctorIdWithDateRange(doctorId, since, until).stream()
-            .map(this::mapToDto)
-            .toList();
+
+        List<Appointment> appointments;
+        if (since != null && until != null) {
+            appointments = appointmentRepository.findByDoctorIdAndDateRange(doctorId, since, until);
+        } else if (since != null) {
+            appointments = appointmentRepository.findByDoctorIdSinceDate(doctorId, since);
+        } else if (until != null) {
+            appointments = appointmentRepository.findByDoctorIdUntilDate(doctorId, until);
+        } else {
+            appointments = appointmentRepository.findByDoctorId(doctorId);
+        }
+
+        return appointments.stream().map(this::mapToDto).toList();
     }
 
     public AppointmentDto createAppointment(CreateAppointmentDto input) {
