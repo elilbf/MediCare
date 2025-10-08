@@ -3,7 +3,7 @@ server:
 
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/scheduling-service
+    url: jdbc:postgresql://scheduler-postgres:5432/scheduling-service
     driver-class-name: org.postgresql.Driver
     username: scheduler_user
     password: scheduler_pass
@@ -12,14 +12,14 @@ spring:
       ddl-auto: update
     database-platform: org.hibernate.dialect.PostgreSQLDialect
   kafka:
-    bootstrap-servers: localhost:29092
+    bootstrap-servers: kafka:9092
     producer:
       client-id: scheduling-service
     consumer:
       group-id: scheduling-service
 
 user-service:
-  url: http://localhost:8082
+  url: http://user-service:8082
 
 jwt:
   secret: prod-local-key-2024-fiap-tech-challenge

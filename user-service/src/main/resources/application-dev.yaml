@@ -3,7 +3,7 @@ server:
 
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5433/user_service_db
+    url: jdbc:postgresql://user-postgres:5432/user_service_db
     driver-class-name: org.postgresql.Driver
     username: user_service_user
     password: user_service_pass
