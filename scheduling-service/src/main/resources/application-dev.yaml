@@ -11,9 +11,15 @@ spring:
     hibernate:
       ddl-auto: update
     database-platform: org.hibernate.dialect.PostgreSQLDialect
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:29092}
+    producer:
+      client-id: scheduling-service
+    consumer:
+      group-id: scheduling-service
 
 user-service:
   url: http://localhost:8082
 
 jwt:
-  secret: dev-local-key-2024-fiap-tech-challenge
+  secret: prod-local-key-2024-fiap-tech-challenge
