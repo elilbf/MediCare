@@ -1,0 +1,46 @@
+server:
+  port: 8081
+spring:
+  datasource:
+    url: ${DATABASE_ENDPOINT:jdbc:postgresql://scheduler-postgres:5432/scheduling-service}
+    driver-class-name: org.postgresql.Driver
+    username: scheduler_user
+    password: scheduler_pass
+  jpa:
+    hibernate:
+      ddl-auto: update
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:29092}
+    producer:
+      client-id: scheduling-service
+    consumer:
+      group-id: scheduling-service
+user-service:
+  url: ${USER_SERVICE_URL:http://localhost:8082}
+resilience4j:
+  circuitbreaker:
+    instances:
+      user-service:
+        sliding-window-size: 10
+        minimum-number-of-calls: 5
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 30s
+        permitted-number-of-calls-in-half-open-state: 3
+        automatic-transition-from-open-to-half-open-enabled: true
+  retry:
+    instances:
+      user-service:
+        max-attempts: 3
+        wait-duration: 1s
+        exponential-backoff-multiplier: 2
+        retry-exceptions:
+        - java.net.ConnectException
+        - java.net.SocketTimeoutException
+        - org.springframework.web.client.ResourceAccessException
+jwt:
+  secret: dev-local-key-2024-fiap-tech-challenge
+
+kafka:
+  topics:
+    notification: cliente-agendamento-notificar

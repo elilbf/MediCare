@@ -1,15 +1,19 @@
 package com.scheduler.schedulingservice.service;
 
-import com.scheduler.schedulingservice.dto.CreateAppointmentDto;
-import com.scheduler.schedulingservice.dto.UpdateAppointmentDto;
-import com.scheduler.schedulingservice.dto.AppointmentDto;
-import com.scheduler.schedulingservice.dto.PatientDto;
-import com.scheduler.schedulingservice.dto.DoctorDto;
-import com.scheduler.schedulingservice.dto.UsuarioDto;
-import com.scheduler.schedulingservice.entities.Appointment;
-import com.scheduler.schedulingservice.repositories.AppointmentRepository;
+import com.scheduler.schedulingservice.IProducerNotificationService;
 import com.scheduler.schedulingservice.client.UserServiceClient;
 import com.scheduler.schedulingservice.constants.UserRoles;
+import com.scheduler.schedulingservice.dto.AppointmentDto;
+import com.scheduler.schedulingservice.dto.CreateAppointmentDto;
+import com.scheduler.schedulingservice.dto.DoctorDto;
+import com.scheduler.schedulingservice.dto.NotificationDTO;
+import com.scheduler.schedulingservice.dto.PatientDto;
+import com.scheduler.schedulingservice.dto.UpdateAppointmentDto;
+import com.scheduler.schedulingservice.dto.UsuarioDto;
+import com.scheduler.schedulingservice.entities.Appointment;
+import com.scheduler.schedulingservice.exception.KafkaProducerCheckedException;
+import com.scheduler.schedulingservice.repositories.AppointmentRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
@@ -20,6 +24,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @Service
 @Transactional
 public class AppointmentService {
@@ -29,6 +34,9 @@ public class AppointmentService {
 
     @Autowired
     private UserServiceClient userServiceClient;
+
+    @Autowired
+    private IProducerNotificationService producerService;
 
     private final DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
 
@@ -43,8 +51,8 @@ public class AppointmentService {
     @PreAuthorize("hasAnyRole('MEDICO', 'ENFERMEIRO')")
     public List<AppointmentDto> findAll() {
         return appointmentRepository.findAll().stream()
-            .map(this::mapToDto)
-            .toList();
+                .map(this::mapToDto)
+                .toList();
     }
 
     public List<AppointmentDto> findByPatientId(Long patientId, String sinceDate, String untilDate) {
@@ -91,23 +99,42 @@ public class AppointmentService {
         appointment.setPatientId(input.getPatientId());
         appointment.setDoctorId(input.getDoctorId());
         appointment.setAppointmentDate(LocalDateTime.parse(input.getAppointmentDate(), formatter));
-        return mapToDto(appointmentRepository.save(appointment));
+        AppointmentDto appointmentDto = mapToDto(appointmentRepository.save(appointment));
+        produceNotification(appointmentDto);
+        return appointmentDto;
+    }
+
+    private void produceNotification(AppointmentDto appointmentDto) {
+        NotificationDTO notification = NotificationDTO.builder()
+                .nomePaciente(appointmentDto.getPatient().getName())
+                .emailPaciente(appointmentDto.getPatient().getEmail())
+                .nomeMedico(appointmentDto.getDoctor().getName())
+                .dataHoraConsulta(appointmentDto.getAppointmentDate().toString())
+                .build();
+
+        try {
+            producerService.produce(notification);
+        } catch (KafkaProducerCheckedException e) {
+            log.error("Erro ao enviar notificação: {}", e.getMessage());
+        }
     }
 
     public Optional<AppointmentDto> updateAppointment(Long id, UpdateAppointmentDto input) {
         return appointmentRepository.findById(id)
-            .map(appointment -> {
-                if (input.getPatientId() != null) {
-                    appointment.setPatientId(input.getPatientId());
-                }
-                if (input.getDoctorId() != null) {
-                    appointment.setDoctorId(input.getDoctorId());
-                }
-                if (input.getAppointmentDate() != null) {
-                    appointment.setAppointmentDate(LocalDateTime.parse(input.getAppointmentDate(), formatter));
-                }
-                return mapToDto(appointmentRepository.save(appointment));
-            });
+                .map(appointment -> {
+                    if (input.getPatientId() != null) {
+                        appointment.setPatientId(input.getPatientId());
+                    }
+                    if (input.getDoctorId() != null) {
+                        appointment.setDoctorId(input.getDoctorId());
+                    }
+                    if (input.getAppointmentDate() != null) {
+                        appointment.setAppointmentDate(LocalDateTime.parse(input.getAppointmentDate(), formatter));
+                    }
+                    AppointmentDto appointmentDto = mapToDto(appointmentRepository.save(appointment));
+                    produceNotification(appointmentDto);
+                    return appointmentDto;
+                });
     }
 
     public boolean deleteAppointment(Long id) {
@@ -140,16 +167,16 @@ public class AppointmentService {
         if (patient == null) {
             throw new IllegalArgumentException("Paciente com ID " + patientId + " não encontrado ou serviço indisponível");
         }
-        
+
         if (patient.getRoles() == null || !patient.getRoles().contains(UserRoles.PACIENTE)) {
             throw new IllegalArgumentException("Usuário com ID " + patientId + " não é um paciente");
         }
-        
+
         UsuarioDto doctor = userServiceClient.buscarUsuarioPorId(doctorId);
         if (doctor == null) {
             throw new IllegalArgumentException("Médico com ID " + doctorId + " não encontrado ou serviço indisponível");
         }
-        
+
         if (doctor.getRoles() == null || !doctor.getRoles().contains(UserRoles.MEDICO)) {
             throw new IllegalArgumentException("Usuário com ID " + doctorId + " não é um médico");
         }
@@ -158,7 +185,7 @@ public class AppointmentService {
     private AppointmentDto mapToDto(Appointment appointment) {
         AppointmentDto dto = new AppointmentDto();
         dto.setId(appointment.getId());
-        
+
         UsuarioDto patientData = userServiceClient.buscarUsuarioPorId(appointment.getPatientId());
         PatientDto patientDto = new PatientDto();
         patientDto.setId(appointment.getPatientId());
@@ -170,7 +197,7 @@ public class AppointmentService {
             patientDto.setEmail("paciente" + appointment.getPatientId() + "@fallback.com");
         }
         dto.setPatient(patientDto);
-        
+
         UsuarioDto doctorData = userServiceClient.buscarUsuarioPorId(appointment.getDoctorId());
         DoctorDto doctorDto = new DoctorDto();
         doctorDto.setId(appointment.getDoctorId());
@@ -182,11 +209,11 @@ public class AppointmentService {
             doctorDto.setEmail("medico" + appointment.getDoctorId() + "@fallback.com");
         }
         dto.setDoctor(doctorDto);
-        
+
         dto.setAppointmentDate(appointment.getAppointmentDate());
         dto.setCreatedDate(appointment.getCreatedDate());
         dto.setLastUpdateDate(appointment.getLastUpdateDate());
-        
+
         return dto;
     }
 }
