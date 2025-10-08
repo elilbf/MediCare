@@ -11,6 +11,8 @@ services:
     networks:
       - medicare-network
     restart: unless-stopped
+    depends_on:
+      - user-postgres
     environment:
       SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE}
       DB_USERNAME: ${USER_SERVICE_DB_USERNAME}

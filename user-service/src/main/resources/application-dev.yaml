@@ -10,7 +10,7 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
-
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
 jwt:
   secret: dev-local-key-2024-fiap-tech-challenge
   expiration: 86400000

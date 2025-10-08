@@ -10,7 +10,7 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
-
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
 jwt:
   secret: ${JWT_SECRET}
   expiration: ${JWT_EXPIRATION}
