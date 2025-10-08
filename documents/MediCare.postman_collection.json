@@ -380,7 +380,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"email\": \"dr.silva@hospital.com.br\",\r\n  \"senha\": \"Medico@123\",\r\n  \"nome\": \"Dr. João Silva\",\r\n  \"username\": \"joao.silva\",\r\n  \"roles\": [\"ROLE_MEDICO\"]\r\n}",
+							"raw": "{\r\n  \"email\": \"dr.silva@hospital.com.br\",\r\n  \"senha\": \"Medico@123\",\r\n  \"nome\": \"Dr. João Silva\",\r\n  \"username\": \"joao.silva\",\r\n  \"roles\": [\"MEDICO\"]\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
