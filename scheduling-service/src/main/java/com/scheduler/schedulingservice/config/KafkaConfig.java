@@ -23,7 +23,7 @@ public class KafkaConfig {
     @Value("${spring.kafka.bootstrap-servers}")
     private String bootstrapServers;
 
-    @Value("${kafka.producer.security.protocol}")
+    @Value("${spring.kafka.producer.client-id}")
     private String clientId;
 
     @Bean
