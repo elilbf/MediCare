@@ -1,6 +1,5 @@
 package com.scheduler.schedulingservice.service;
 
-import com.scheduler.schedulingservice.IProducerNotificationService;
 import com.scheduler.schedulingservice.client.UserServiceClient;
 import com.scheduler.schedulingservice.constants.UserRoles;
 import com.scheduler.schedulingservice.dto.AppointmentDto;

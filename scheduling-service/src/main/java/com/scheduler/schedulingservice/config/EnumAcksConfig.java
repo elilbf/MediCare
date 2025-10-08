@@ -1,4 +1,4 @@
-package com.scheduler.schedulingservice;
+package com.scheduler.schedulingservice.config;
 
 import lombok.Getter;
 

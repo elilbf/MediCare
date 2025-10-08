@@ -1,4 +1,4 @@
-package com.scheduler.schedulingservice;
+package com.scheduler.schedulingservice.service;
 
 import com.scheduler.schedulingservice.exception.KafkaProducerCheckedException;
 

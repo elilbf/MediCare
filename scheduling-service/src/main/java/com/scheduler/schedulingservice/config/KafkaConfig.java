@@ -1,6 +1,5 @@
 package com.scheduler.schedulingservice.config;
 
-import com.scheduler.schedulingservice.EnumAcksConfig;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.kafka.clients.producer.ProducerConfig;

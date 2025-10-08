@@ -1,4 +1,4 @@
-package com.scheduler.schedulingservice;
+package com.scheduler.schedulingservice.service;
 
 import com.scheduler.schedulingservice.exception.KafkaProducerCheckedException;
 import lombok.extern.slf4j.Slf4j;
@@ -9,13 +9,13 @@ import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
-public class ProducerNotificationNotificationService implements IProducerNotificationService {
+public class ProducerNotificationService implements IProducerNotificationService {
     
     private final String notificationTopic;
 
     private final KafkaTemplate<String, Object> kafkaTemplate;
 
-    public ProducerNotificationNotificationService(@Value("${kafka.topics.notification}") String notificationTopic, KafkaTemplate<String, Object> kafkaTemplate) {
+    public ProducerNotificationService(@Value("${kafka.topics.notification}") String notificationTopic, KafkaTemplate<String, Object> kafkaTemplate) {
         this.notificationTopic = notificationTopic;
         this.kafkaTemplate = kafkaTemplate;
         this.kafkaTemplate.setMessageConverter(new JsonMessageConverter());
