@@ -10,13 +10,10 @@ services:
       - scheduler-postgres
       - kafka
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://scheduler-postgres:5432/scheduling-service
-      SPRING_DATASOURCE_USERNAME: scheduler_user
-      SPRING_DATASOURCE_PASSWORD: scheduler_pass
-      SPRING_JPA_HIBERNATE_DDL_AUTO: update
-      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
-      DATABASE_ENDPOINT: "jdbc:postgresql://scheduler-postgres:5432/scheduling-service"
-      USER_SERVICE_URL: "http://user-service:8082"
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE}
+      DB_USERNAME: ${SCHEDULING_SERVICE_DB_USERNAME}
+      DB_PASSWORD: ${SCHEDULING_SERVICE_DB_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
     ports:
       - "8081:8081"
     networks:
