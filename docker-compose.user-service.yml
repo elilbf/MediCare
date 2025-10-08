@@ -11,6 +11,9 @@ services:
     networks:
       - medicare-network
     restart: unless-stopped
+    environment:
+      DATABASE_ENDPOINT: "jdbc:postgresql://user-postgres:5432/user_service_db"
+      USER_SERVICE_URL: "http://localhost:8082"
 
   user-postgres:
     image: postgres:16-alpine
