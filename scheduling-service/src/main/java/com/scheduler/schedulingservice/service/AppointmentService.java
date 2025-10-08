@@ -15,16 +15,10 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
-
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @Service
 @Transactional
@@ -53,14 +47,19 @@ public class AppointmentService {
             .toList();
     }
 
-    public List<AppointmentDto> findByPatientId(Long patientId) {
-        return appointmentRepository.findByPatientId(patientId).stream()
+    public List<AppointmentDto> findByPatientId(Long patientId, String sinceDate, String untilDate) {
+        LocalDateTime since = (sinceDate != null && !sinceDate.isBlank()) ? LocalDateTime.parse(sinceDate, formatter) : null;
+        LocalDateTime until = (untilDate != null && !untilDate.isBlank()) ? LocalDateTime.parse(untilDate, formatter) : null;
+        return appointmentRepository.findByPatientIdWithDateRange(patientId, since, until).stream()
             .map(this::mapToDto)
             .toList();
     }
 
-    public List<AppointmentDto> findByDoctorId(Long doctorId) {
-        return appointmentRepository.findByDoctorId(doctorId).stream()
+
+    public List<AppointmentDto> findByDoctorId(Long doctorId, String sinceDate, String untilDate) {
+        LocalDateTime since = (sinceDate != null && !sinceDate.isBlank()) ? LocalDateTime.parse(sinceDate, formatter) : null;
+        LocalDateTime until = (untilDate != null && !untilDate.isBlank()) ? LocalDateTime.parse(untilDate, formatter) : null;
+        return appointmentRepository.findByDoctorIdWithDateRange(doctorId, since, until).stream()
             .map(this::mapToDto)
             .toList();
     }

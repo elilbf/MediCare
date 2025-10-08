@@ -31,13 +31,13 @@ public class AppointmentController {
     }
 
     @QueryMapping
-    public List<AppointmentDto> getAppointmentsByPatient(@Argument Long patientId) {
-        return appointmentService.findByPatientId(patientId);
+    public List<AppointmentDto> getAppointmentsByPatient(@Argument Long patientId, @Argument String sinceDate, @Argument String untilDate) {
+        return appointmentService.findByPatientId(patientId, sinceDate, untilDate);
     }
 
     @QueryMapping
-    public List<AppointmentDto> getAppointmentsByDoctor(@Argument Long doctorId) {
-        return appointmentService.findByDoctorId(doctorId);
+    public List<AppointmentDto> getAppointmentsByDoctor(@Argument Long doctorId, @Argument String sinceDate, @Argument String untilDate) {
+        return appointmentService.findByDoctorId(doctorId, sinceDate, untilDate);
     }
 
     @MutationMapping
