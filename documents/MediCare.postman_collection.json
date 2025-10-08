@@ -309,7 +309,7 @@
 								}
 							}
 						},
-						"url": "{{baseUrl}}/auth/login",
+						"url": "http://localhost:8082/auth/login",
 						"description": "Realizar login e obter token JWT"
 					},
 					"response": []
@@ -387,7 +387,7 @@
 								}
 							}
 						},
-						"url": "{{baseUrl}}/usuario/criar"
+						"url": "http://localhost:8082/usuario/criar"
 					},
 					"response": []
 				}
