@@ -28,7 +28,12 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/graphql").permitAll() // GraphQL endpoint
+                        .requestMatchers("/graphql").permitAll()
+                        .requestMatchers("/graphiql").permitAll()
+                        .requestMatchers("/graphiql/**").permitAll()
+                        .requestMatchers("/vendor/**").permitAll()
+                        .requestMatchers("/favicon.ico").permitAll()
+                        .requestMatchers("/webjars/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);

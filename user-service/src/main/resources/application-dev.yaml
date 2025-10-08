@@ -1,0 +1,16 @@
+server:
+  port: 8082
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5433/user_service_db
+    driver-class-name: org.postgresql.Driver
+    username: user_service_user
+    password: user_service_pass
+  jpa:
+    hibernate:
+      ddl-auto: update
+
+jwt:
+  secret: dev-local-key-2024-fiap-tech-challenge
+  expiration: 86400000

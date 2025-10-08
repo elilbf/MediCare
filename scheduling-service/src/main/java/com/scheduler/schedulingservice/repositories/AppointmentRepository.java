@@ -17,60 +17,34 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
     List<Appointment> findByPatientIdAndDoctorId(Long patientId, Long doctorId);
 
     // Query for patient appointments with date range (both dates provided)
-    @Query("""
-        SELECT a FROM Appointment a
-        WHERE a.patientId = :patientId
-          AND a.appointmentDate >= :since
-          AND a.appointmentDate <= :until
-    """)
+    @Query(value = "SELECT * FROM appointments WHERE patient_id = :patientId AND appointment_date::timestamp >= :since AND appointment_date::timestamp <= :until", nativeQuery = true)
     List<Appointment> findByPatientIdAndDateRange(@Param("patientId") Long patientId,
                                                  @Param("since") LocalDateTime since,
                                                  @Param("until") LocalDateTime until);
 
     // Query for patient appointments with only start date
-    @Query("""
-        SELECT a FROM Appointment a
-        WHERE a.patientId = :patientId
-          AND a.appointmentDate >= :since
-    """)
+    @Query(value = "SELECT * FROM appointments WHERE patient_id = :patientId AND appointment_date::timestamp >= :since", nativeQuery = true)
     List<Appointment> findByPatientIdSinceDate(@Param("patientId") Long patientId,
                                               @Param("since") LocalDateTime since);
 
     // Query for patient appointments with only end date
-    @Query("""
-        SELECT a FROM Appointment a
-        WHERE a.patientId = :patientId
-          AND a.appointmentDate <= :until
-    """)
+    @Query(value = "SELECT * FROM appointments WHERE patient_id = :patientId AND appointment_date::timestamp <= :until", nativeQuery = true)
     List<Appointment> findByPatientIdUntilDate(@Param("patientId") Long patientId,
                                               @Param("until") LocalDateTime until);
 
     // Query for doctor appointments with date range (both dates provided)
-    @Query("""
-        SELECT a FROM Appointment a
-        WHERE a.doctorId = :doctorId
-          AND a.appointmentDate >= :since
-          AND a.appointmentDate <= :until
-    """)
+    @Query(value = "SELECT * FROM appointments WHERE doctor_id = :doctorId AND appointment_date::timestamp >= :since AND appointment_date::timestamp <= :until", nativeQuery = true)
     List<Appointment> findByDoctorIdAndDateRange(@Param("doctorId") Long doctorId,
                                                 @Param("since") LocalDateTime since,
                                                 @Param("until") LocalDateTime until);
 
     // Query for doctor appointments with only start date
-    @Query("""
-        SELECT a FROM Appointment a
-        WHERE a.doctorId = :doctorId
-          AND a.appointmentDate >= :since
-    """)
+    @Query(value = "SELECT * FROM appointments WHERE doctor_id = :doctorId AND appointment_date::timestamp >= :since", nativeQuery = true)
     List<Appointment> findByDoctorIdSinceDate(@Param("doctorId") Long doctorId,
                                              @Param("since") LocalDateTime since);
 
     // Query for doctor appointments with only end date
-    @Query("""
-        SELECT a FROM Appointment a
-        WHERE a.doctorId = :doctorId
-          AND a.appointmentDate <= :until
-    """)
+    @Query(value = "SELECT * FROM appointments WHERE doctor_id = :doctorId AND appointment_date::timestamp <= :until", nativeQuery = true)
     List<Appointment> findByDoctorIdUntilDate(@Param("doctorId") Long doctorId,
                                              @Param("until") LocalDateTime until);
 }
