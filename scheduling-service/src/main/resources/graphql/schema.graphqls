@@ -35,8 +35,8 @@ input UpdateAppointment {
 extend type Query {
     getAppointment(id: ID!): Appointment
     getAllAppointments: [Appointment!]!
-    getAppointmentsByPatient(patientId: Int!): [Appointment!]!
-    getAppointmentsByDoctor(doctorId: Int!): [Appointment!]!
+    getAppointmentsByPatient(patientId: Int!, sinceDate: String, untilDate: String): [Appointment!]!
+    getAppointmentsByDoctor(doctorId: Int!, sinceDate: String, untilDate: String): [Appointment!]!
 }
 
 extend type Mutation {

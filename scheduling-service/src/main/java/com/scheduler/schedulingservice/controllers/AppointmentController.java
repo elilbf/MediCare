@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 
 import jakarta.validation.Valid;
@@ -20,36 +21,43 @@ public class AppointmentController {
     private AppointmentService appointmentService;
 
     @QueryMapping
+    @PreAuthorize("hasAnyRole('ENFERMEIRO', 'MEDICO')")
     public AppointmentDto getAppointment(@Argument Long id) {
         return appointmentService.findById(id).orElse(null);
     }
 
     @QueryMapping
+    @PreAuthorize("hasAnyRole('ENFERMEIRO', 'MEDICO')")
     public List<AppointmentDto> getAllAppointments() {
         return appointmentService.findAll();
     }
 
     @QueryMapping
-    public List<AppointmentDto> getAppointmentsByPatient(@Argument Long patientId) {
-        return appointmentService.findByPatientId(patientId);
+    @PreAuthorize("@authz.isAdminOrSelf(authentication, #patientId)")
+    public List<AppointmentDto> getAppointmentsByPatient(@Argument Long patientId, @Argument String sinceDate, @Argument String untilDate) {
+        return appointmentService.findByPatientId(patientId, sinceDate, untilDate);
     }
 
     @QueryMapping
-    public List<AppointmentDto> getAppointmentsByDoctor(@Argument Long doctorId) {
-        return appointmentService.findByDoctorId(doctorId);
+    @PreAuthorize("hasAnyRole('ENFERMEIRO', 'MEDICO')")
+    public List<AppointmentDto> getAppointmentsByDoctor(@Argument Long doctorId, @Argument String sinceDate, @Argument String untilDate) {
+        return appointmentService.findByDoctorId(doctorId, sinceDate, untilDate);
     }
 
     @MutationMapping
+    @PreAuthorize("hasAnyRole('ENFERMEIRO', 'MEDICO')")
     public AppointmentDto createAppointment(@Valid @Argument CreateAppointmentDto input) {
         return appointmentService.createAppointment(input);
     }
 
     @MutationMapping
-    public AppointmentDto updateAppointment(@Argument Long id, @Valid @Argument UpdateAppointmentDto input) {
-        return appointmentService.updateAppointment(id, input).orElse(null);
+    @PreAuthorize("hasAnyRole('ENFERMEIRO', 'MEDICO')")
+    public AppointmentDto updateAppointment(@Valid @Argument UpdateAppointmentDto input) {
+        return appointmentService.updateAppointment(input.getId(), input).orElse(null);
     }
 
     @MutationMapping
+    @PreAuthorize("hasAnyRole('ENFERMEIRO', 'MEDICO')")
     public Boolean deleteAppointment(@Argument Long id) {
         return appointmentService.deleteAppointment(id);
     }

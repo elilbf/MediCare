@@ -15,6 +15,9 @@ COPY notification-service/src notification-service/src
 
 ARG SERVICE_NAME
 ENV SERVICE_NAME=${SERVICE_NAME}
+# Variáveis de ambiente para endpoints
+ENV DATABASE_ENDPOINT=""
+ENV USER_SERVICE_URL=""
 
 RUN mvn clean package -pl ${SERVICE_NAME} -am -DskipTests
 
@@ -29,6 +32,9 @@ WORKDIR /app
 
 ARG SERVICE_NAME
 ENV SERVICE_NAME=${SERVICE_NAME}
+# Variáveis de ambiente para endpoints
+ENV DATABASE_ENDPOINT=""
+ENV USER_SERVICE_URL=""
 
 COPY --from=builder /app/${SERVICE_NAME}/target/${SERVICE_NAME}-*.jar app.jar
 

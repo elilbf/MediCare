@@ -15,6 +15,8 @@ services:
       SPRING_DATASOURCE_PASSWORD: scheduler_pass
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      DATABASE_ENDPOINT: "jdbc:postgresql://scheduler-postgres:5432/scheduling-service"
+      USER_SERVICE_URL: "http://user-service:8082"
     ports:
       - "8081:8081"
     networks:
@@ -29,7 +31,6 @@ services:
       POSTGRES_PASSWORD: scheduler_pass
     volumes:
       - scheduler_postgres_data:/var/lib/postgresql/data
-      - ./documents/init-multiple-databases.sh:/docker-entrypoint-initdb.d/init-multiple-databases.sh
     ports:
       - "5432:5432"
     networks:
