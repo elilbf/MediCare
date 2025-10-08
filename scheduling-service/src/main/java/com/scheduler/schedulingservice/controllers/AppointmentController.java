@@ -21,21 +21,25 @@ public class AppointmentController {
     private AppointmentService appointmentService;
 
     @QueryMapping
+    @PreAuthorize("hasAnyRole('ENFERMEIRO', 'MEDICO')")
     public AppointmentDto getAppointment(@Argument Long id) {
         return appointmentService.findById(id).orElse(null);
     }
 
     @QueryMapping
+    @PreAuthorize("hasAnyRole('ENFERMEIRO', 'MEDICO')")
     public List<AppointmentDto> getAllAppointments() {
         return appointmentService.findAll();
     }
 
     @QueryMapping
+    @PreAuthorize("@authz.isAdminOrSelf(authentication, #patientId)")
     public List<AppointmentDto> getAppointmentsByPatient(@Argument Long patientId, @Argument String sinceDate, @Argument String untilDate) {
         return appointmentService.findByPatientId(patientId, sinceDate, untilDate);
     }
 
     @QueryMapping
+    @PreAuthorize("hasAnyRole('ENFERMEIRO', 'MEDICO')")
     public List<AppointmentDto> getAppointmentsByDoctor(@Argument Long doctorId, @Argument String sinceDate, @Argument String untilDate) {
         return appointmentService.findByDoctorId(doctorId, sinceDate, untilDate);
     }
@@ -48,8 +52,8 @@ public class AppointmentController {
 
     @MutationMapping
     @PreAuthorize("hasAnyRole('ENFERMEIRO', 'MEDICO')")
-    public AppointmentDto updateAppointment(@Argument Long id, @Valid @Argument UpdateAppointmentDto input) {
-        return appointmentService.updateAppointment(id, input).orElse(null);
+    public AppointmentDto updateAppointment(@Valid @Argument UpdateAppointmentDto input) {
+        return appointmentService.updateAppointment(input.getId(), input).orElse(null);
     }
 
     @MutationMapping

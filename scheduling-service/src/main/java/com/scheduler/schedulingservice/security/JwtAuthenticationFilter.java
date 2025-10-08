@@ -27,8 +27,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Value("${jwt.secret}")
     private String SECRET_KEY;
 
-    private final RestTemplate restTemplate = new RestTemplate();
-
     private static final Logger logger = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
 
     @Override
@@ -45,7 +43,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
-        String userId = claims.getSubject();
+        String userId = claims.get("userId", Long.class).toString();
         Object rolesObj = claims.get("roles");
         List<String> roles = new ArrayList<>();
         if (rolesObj instanceof List<?>) {
