@@ -20,6 +20,17 @@ public class AppointmentController {
     @Autowired
     private AppointmentService appointmentService;
 
+    // Queries públicas para introspecção e health check
+    @QueryMapping
+    public String health() {
+        return "OK - Scheduling Service is running";
+    }
+
+    @QueryMapping
+    public SchemaInfo schemaInfo() {
+        return new SchemaInfo("1.0", "MediCare Scheduling Service GraphQL API");
+    }
+
     @QueryMapping
     @PreAuthorize("hasAnyRole('ENFERMEIRO', 'MEDICO')")
     public AppointmentDto getAppointment(@Argument Long id) {
@@ -60,5 +71,24 @@ public class AppointmentController {
     @PreAuthorize("hasAnyRole('ENFERMEIRO', 'MEDICO')")
     public Boolean deleteAppointment(@Argument Long id) {
         return appointmentService.deleteAppointment(id);
+    }
+
+    // Classe interna para SchemaInfo
+    public static class SchemaInfo {
+        private final String version;
+        private final String description;
+
+        public SchemaInfo(String version, String description) {
+            this.version = version;
+            this.description = description;
+        }
+
+        public String getVersion() {
+            return version;
+        }
+
+        public String getDescription() {
+            return description;
+        }
     }
 }
