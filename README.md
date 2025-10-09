@@ -47,10 +47,19 @@ Para executar o projeto, você precisará ter o Docker e o Docker Compose instal
 
 2.  **Execute o Docker Compose:**
     ```bash
-    docker-compose -f docker-compose.infra.yml -f docker-compose.user-service.yml -f docker-compose.scheduling-service.yml -f docker-compose.notification-service.yml up --build
+    docker-compose up --build -d
     ```
 
 Isso irá construir e iniciar todos os serviços e a infraestrutura necessária (banco de dados, message broker, etc.).
+
+## Como Parar e Limpar o Ambiente
+
+Para parar todos os contêineres e remover as imagens Docker, execute os seguintes comandos:
+
+```bash
+docker-compose down
+docker image rm $(docker image ls -aq)
+```
 
 ## Equipe
 
