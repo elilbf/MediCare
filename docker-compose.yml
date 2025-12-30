@@ -1,9 +1,0 @@
-include:
-  - docker-compose.infra.yml
-  - docker-compose.user-service.yml
-  - docker-compose.scheduling-service.yml
-  - docker-compose.notification-service.yml
-
-networks:
-  medicare-network:
-    driver: bridge
