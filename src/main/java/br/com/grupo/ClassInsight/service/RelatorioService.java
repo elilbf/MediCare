@@ -11,7 +11,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.time.format.TextStyle;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -35,8 +34,6 @@ public class RelatorioService {
 
     public RelatorioSemanalDTO gerarRelatorioPeriodo(LocalDateTime dataInicio, LocalDateTime dataFim) {
         log.info("Gerando relatório para período: {} a {}", dataInicio, dataFim);
-
-        List<Avaliacao> avaliacoes = avaliacaoRepository.findByDataEnvioBetween(dataInicio, dataFim);
 
         Long totalAvaliacoes = avaliacaoRepository.contarPorPeriodo(dataInicio, dataFim);
         Double mediaGeral = avaliacaoRepository.calcularMediaPorPeriodo(dataInicio, dataFim);
