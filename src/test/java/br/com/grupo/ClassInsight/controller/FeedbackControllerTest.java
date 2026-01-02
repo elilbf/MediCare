@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.MockBean;
@@ -60,7 +61,8 @@ class FeedbackControllerTest {
             TipoFeedback.DUVIDA,
             StatusFeedback.ABERTO,
             null,
-            LocalDateTime.now()
+            LocalDateTime.now(),
+            null
         );
     }
 
@@ -70,8 +72,7 @@ class FeedbackControllerTest {
         when(feedbackService.criarFeedback(eq(1L), any(FeedbackCriacaoDTO.class)))
             .thenReturn(feedbackDTO);
 
-        mockMvc.perform(post("/classinsight/feedbacks")
-                .header("X-Usuario-Id", "1")
+        mockMvc.perform(post("/api/feedbacks/aluno/1")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(feedbackCriacaoDTO)))
             .andExpect(status().isCreated())
@@ -86,7 +87,7 @@ class FeedbackControllerTest {
     void testObterFeedbackPorIdComSucesso() throws Exception {
         when(feedbackService.obterFeedbackPorId(1L)).thenReturn(feedbackDTO);
 
-        mockMvc.perform(get("/classinsight/feedbacks/1"))
+        mockMvc.perform(get("/api/feedbacks/1"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.id").value(1L))
             .andExpect(jsonPath("$.titulo").value("Dúvida sobre integral"));
@@ -98,7 +99,7 @@ class FeedbackControllerTest {
         when(feedbackService.obterFeedbackPorId(999L))
             .thenThrow(new ResourceNotFoundException("Feedback não encontrado"));
 
-        mockMvc.perform(get("/classinsight/feedbacks/999"))
+        mockMvc.perform(get("/api/feedbacks/999"))
             .andExpect(status().isNotFound());
     }
 
@@ -108,7 +109,7 @@ class FeedbackControllerTest {
         List<FeedbackDTO> feedbacks = List.of(feedbackDTO);
         when(feedbackService.listarFeedbackPorTurma(1L)).thenReturn(feedbacks);
 
-        mockMvc.perform(get("/classinsight/feedbacks/turma/1"))
+        mockMvc.perform(get("/api/feedbacks/turma/1"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$[0].id").value(1L));
     }
@@ -119,7 +120,7 @@ class FeedbackControllerTest {
         List<FeedbackDTO> feedbacks = List.of(feedbackDTO);
         when(feedbackService.listarFeedbackPorAluno(1L)).thenReturn(feedbacks);
 
-        mockMvc.perform(get("/classinsight/feedbacks/aluno/1"))
+        mockMvc.perform(get("/api/feedbacks/aluno/1"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$[0].id").value(1L));
     }
@@ -131,7 +132,7 @@ class FeedbackControllerTest {
         when(feedbackService.listarFeedbackPorStatus(StatusFeedback.ABERTO))
             .thenReturn(feedbacks);
 
-        mockMvc.perform(get("/classinsight/feedbacks/status/ABERTO"))
+        mockMvc.perform(get("/api/feedbacks/status/ABERTO"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$[0].id").value(1L));
     }
@@ -142,7 +143,7 @@ class FeedbackControllerTest {
         List<FeedbackDTO> feedbacks = List.of(feedbackDTO);
         when(feedbackService.listarFeedbackAberto()).thenReturn(feedbacks);
 
-        mockMvc.perform(get("/classinsight/feedbacks/abertos"))
+        mockMvc.perform(get("/api/feedbacks/status/aberto"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$[0].status").value("ABERTO"));
     }
@@ -153,14 +154,13 @@ class FeedbackControllerTest {
         RespostaFeedbackDTO respostaDTO = new RespostaFeedbackDTO("Para resolver integrais...");
         FeedbackDTO feedbackRespondido = new FeedbackDTO(
             1L, 1L, 1L, "Dúvida sobre integral", "Conteúdo",
-            TipoFeedback.DUVIDA, StatusFeedback.RESPONDIDO, "Para resolver integrais...", LocalDateTime.now()
+            TipoFeedback.DUVIDA, StatusFeedback.RESPONDIDO, "Para resolver integrais...", LocalDateTime.now(), null
         );
 
         when(feedbackService.responderFeedback(eq(1L), eq(2L), any(RespostaFeedbackDTO.class)))
             .thenReturn(feedbackRespondido);
 
-        mockMvc.perform(put("/classinsight/feedbacks/1/responder")
-                .header("X-Usuario-Id", "2")
+        mockMvc.perform(post("/api/feedbacks/1/responder/2")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(respostaDTO)))
             .andExpect(status().isOk())
@@ -174,12 +174,12 @@ class FeedbackControllerTest {
     void testFecharFeedbackComSucesso() throws Exception {
         FeedbackDTO feedbackFechado = new FeedbackDTO(
             1L, 1L, 1L, "Dúvida sobre integral", "Conteúdo",
-            TipoFeedback.DUVIDA, StatusFeedback.FECHADO, "Resposta", LocalDateTime.now()
+            TipoFeedback.DUVIDA, StatusFeedback.FECHADO, "Resposta", LocalDateTime.now(), null
         );
 
         when(feedbackService.fecharFeedback(1L)).thenReturn(feedbackFechado);
 
-        mockMvc.perform(put("/classinsight/feedbacks/1/fechar"))
+        mockMvc.perform(put("/api/feedbacks/1/fechar"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.status").value("FECHADO"));
     }
@@ -189,7 +189,7 @@ class FeedbackControllerTest {
     void testDeletarFeedbackComSucesso() throws Exception {
         doNothing().when(feedbackService).deletarFeedback(1L);
 
-        mockMvc.perform(delete("/classinsight/feedbacks/1"))
+        mockMvc.perform(delete("/api/feedbacks/1"))
             .andExpect(status().isNoContent());
 
         verify(feedbackService, times(1)).deletarFeedback(1L);

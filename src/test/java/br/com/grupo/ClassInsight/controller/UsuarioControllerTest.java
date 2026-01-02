@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.MockBean;
@@ -65,7 +66,7 @@ class UsuarioControllerTest {
     void testCriarUsuarioComSucesso() throws Exception {
         when(usuarioService.criarUsuario(any(UsuarioCriacaoDTO.class))).thenReturn(usuarioDTO);
 
-        mockMvc.perform(post("/classinsight/usuarios")
+        mockMvc.perform(post("/api/usuarios")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(usuarioCriacaoDTO)))
             .andExpect(status().isCreated())
@@ -81,7 +82,7 @@ class UsuarioControllerTest {
         when(usuarioService.criarUsuario(any(UsuarioCriacaoDTO.class)))
             .thenThrow(new DuplicateResourceException("Email já existe"));
 
-        mockMvc.perform(post("/classinsight/usuarios")
+        mockMvc.perform(post("/api/usuarios")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(usuarioCriacaoDTO)))
             .andExpect(status().isConflict());
@@ -92,7 +93,7 @@ class UsuarioControllerTest {
     void testObterUsuarioPorIdComSucesso() throws Exception {
         when(usuarioService.obterUsuarioPorId(1L)).thenReturn(usuarioDTO);
 
-        mockMvc.perform(get("/classinsight/usuarios/1"))
+        mockMvc.perform(get("/api/usuarios/1"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.id").value(1L))
             .andExpect(jsonPath("$.email").value("teste@example.com"));
@@ -104,7 +105,7 @@ class UsuarioControllerTest {
         when(usuarioService.obterUsuarioPorId(999L))
             .thenThrow(new ResourceNotFoundException("Usuário não encontrado"));
 
-        mockMvc.perform(get("/classinsight/usuarios/999"))
+        mockMvc.perform(get("/api/usuarios/999"))
             .andExpect(status().isNotFound());
     }
 
@@ -113,7 +114,7 @@ class UsuarioControllerTest {
     void testObterUsuarioPorEmailComSucesso() throws Exception {
         when(usuarioService.obterUsuarioPorEmail("teste@example.com")).thenReturn(usuarioDTO);
 
-        mockMvc.perform(get("/classinsight/usuarios/email/teste@example.com"))
+        mockMvc.perform(get("/api/usuarios/email/teste@example.com"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.email").value("teste@example.com"));
     }
@@ -124,7 +125,7 @@ class UsuarioControllerTest {
         List<UsuarioDTO> usuarios = List.of(usuarioDTO);
         when(usuarioService.listarTodos()).thenReturn(usuarios);
 
-        mockMvc.perform(get("/classinsight/usuarios"))
+        mockMvc.perform(get("/api/usuarios"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$[0].id").value(1L))
             .andExpect(jsonPath("$[0].email").value("teste@example.com"));
@@ -136,7 +137,7 @@ class UsuarioControllerTest {
         List<UsuarioDTO> usuarios = List.of(usuarioDTO);
         when(usuarioService.listarPorTipo(TipoUsuario.ALUNO)).thenReturn(usuarios);
 
-        mockMvc.perform(get("/classinsight/usuarios/tipo/ALUNO"))
+        mockMvc.perform(get("/api/usuarios/tipo/ALUNO"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$[0].id").value(1L));
     }
@@ -147,7 +148,7 @@ class UsuarioControllerTest {
         when(usuarioService.atualizarUsuario(eq(1L), any(UsuarioCriacaoDTO.class)))
             .thenReturn(usuarioDTO);
 
-        mockMvc.perform(put("/classinsight/usuarios/1")
+        mockMvc.perform(put("/api/usuarios/1")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(usuarioCriacaoDTO)))
             .andExpect(status().isOk())
@@ -159,7 +160,7 @@ class UsuarioControllerTest {
     void testDeletarUsuarioComSucesso() throws Exception {
         doNothing().when(usuarioService).deletarUsuario(1L);
 
-        mockMvc.perform(delete("/classinsight/usuarios/1"))
+        mockMvc.perform(delete("/api/usuarios/1"))
             .andExpect(status().isNoContent());
 
         verify(usuarioService, times(1)).deletarUsuario(1L);
