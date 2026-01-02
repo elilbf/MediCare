@@ -6,9 +6,7 @@ import br.com.grupo.ClassInsight.model.Usuario;
 import br.com.grupo.ClassInsight.repository.MatriculaTurmaRepository;
 import br.com.grupo.ClassInsight.repository.TurmaRepository;
 import br.com.grupo.ClassInsight.repository.UsuarioRepository;
-import br.com.grupo.ClassInsight.exception.ResourceNotFoundException;
-import br.com.grupo.ClassInsight.exception.DuplicateResourceException;
-import br.com.grupo.ClassInsight.exception.InvalidOperationException;
+import br.com.grupo.ClassInsight.exception.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
@@ -31,17 +29,17 @@ public class MatriculaTurmaService {
     
     public MatriculaTurma matricularAluno(Long alunoId, Long turmaId) {
         Usuario aluno = usuarioRepository.findById(alunoId)
-            .orElseThrow(() -> new ResourceNotFoundException("Aluno não encontrado com ID: " + alunoId));
+            .orElseThrow(() -> new EntityNotFoundException("Aluno não encontrado com ID: " + alunoId));
         
         Turma turma = turmaRepository.findById(turmaId)
-            .orElseThrow(() -> new ResourceNotFoundException("Turma não encontrada com ID: " + turmaId));
+            .orElseThrow(() -> new EntityNotFoundException("Turma não encontrada com ID: " + turmaId));
         
         if (!turma.isAtiva()) {
-            throw new InvalidOperationException("Turma não está ativa");
+            throw new IllegalArgumentException("Turma não está ativa");
         }
         
         if (matriculaTurmaRepository.findByAlunoAndTurma(aluno, turma).isPresent()) {
-            throw new DuplicateResourceException("Aluno já está matriculado nesta turma");
+            throw new EntityNotFoundException("Aluno já está matriculado nesta turma");
         }
         
         MatriculaTurma matricula = new MatriculaTurma();
@@ -54,13 +52,13 @@ public class MatriculaTurmaService {
     
     public void desmatricular(Long alunoId, Long turmaId) {
         Usuario aluno = usuarioRepository.findById(alunoId)
-            .orElseThrow(() -> new ResourceNotFoundException("Aluno não encontrado com ID: " + alunoId));
+            .orElseThrow(() -> new EntityNotFoundException("Aluno não encontrado com ID: " + alunoId));
         
         Turma turma = turmaRepository.findById(turmaId)
-            .orElseThrow(() -> new ResourceNotFoundException("Turma não encontrada com ID: " + turmaId));
+            .orElseThrow(() -> new EntityNotFoundException("Turma não encontrada com ID: " + turmaId));
         
         MatriculaTurma matricula = matriculaTurmaRepository.findByAlunoAndTurma(aluno, turma)
-            .orElseThrow(() -> new ResourceNotFoundException("Matrícula não encontrada"));
+            .orElseThrow(() -> new EntityNotFoundException("Matrícula não encontrada"));
         
         matricula.setAtiva(false);
         matriculaTurmaRepository.save(matricula);
@@ -68,22 +66,22 @@ public class MatriculaTurmaService {
     
     public List<MatriculaTurma> listarMatriculasPorAluno(Long alunoId) {
         Usuario aluno = usuarioRepository.findById(alunoId)
-            .orElseThrow(() -> new ResourceNotFoundException("Aluno não encontrado com ID: " + alunoId));
+            .orElseThrow(() -> new EntityNotFoundException("Aluno não encontrado com ID: " + alunoId));
         return matriculaTurmaRepository.findByAlunoAndAtivaTrue(aluno);
     }
     
     public List<MatriculaTurma> listarMatriculasPorTurma(Long turmaId) {
         Turma turma = turmaRepository.findById(turmaId)
-            .orElseThrow(() -> new ResourceNotFoundException("Turma não encontrada com ID: " + turmaId));
+            .orElseThrow(() -> new EntityNotFoundException("Turma não encontrada com ID: " + turmaId));
         return matriculaTurmaRepository.findByTurmaAndAtivaTrue(turma);
     }
     
     public boolean verificarMatricula(Long alunoId, Long turmaId) {
         Usuario aluno = usuarioRepository.findById(alunoId)
-            .orElseThrow(() -> new ResourceNotFoundException("Aluno não encontrado com ID: " + alunoId));
+            .orElseThrow(() -> new EntityNotFoundException("Aluno não encontrado com ID: " + alunoId));
         
         Turma turma = turmaRepository.findById(turmaId)
-            .orElseThrow(() -> new ResourceNotFoundException("Turma não encontrada com ID: " + turmaId));
+            .orElseThrow(() -> new EntityNotFoundException("Turma não encontrada com ID: " + turmaId));
         
         return matriculaTurmaRepository.findByAlunoAndTurma(aluno, turma)
             .map(MatriculaTurma::isAtiva)

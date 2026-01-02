@@ -1,11 +1,16 @@
 package br.com.grupo.ClassInsight.exception;
 
+import lombok.Builder;
+import lombok.Data;
+
 import java.time.LocalDateTime;
 
-public record ErrorResponse(
-    LocalDateTime timestamp,
-    int status,
-    String error,
-    String message,
-    String path
-) {}
+@Data
+@Builder
+public class ErrorResponse {
+    private LocalDateTime timestamp;
+    private int status;
+    private String error;
+    private String message;
+    private String path;
+}

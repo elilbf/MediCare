@@ -7,8 +7,7 @@ import br.com.grupo.ClassInsight.dto.TurmaCriacaoDTO;
 import br.com.grupo.ClassInsight.dto.TurmaDTO;
 import br.com.grupo.ClassInsight.repository.TurmaRepository;
 import br.com.grupo.ClassInsight.repository.UsuarioRepository;
-import br.com.grupo.ClassInsight.exception.ResourceNotFoundException;
-import br.com.grupo.ClassInsight.exception.InvalidOperationException;
+import br.com.grupo.ClassInsight.exception.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
@@ -29,10 +28,10 @@ public class TurmaService {
     
     public TurmaDTO criarTurma(TurmaCriacaoDTO dto) {
         Usuario professor = usuarioRepository.findById(dto.professorId())
-            .orElseThrow(() -> new ResourceNotFoundException("Professor não encontrado com ID: " + dto.professorId()));
+            .orElseThrow(() -> new EntityNotFoundException("Professor não encontrado com ID: " + dto.professorId()));
         
         if (professor.getTipoUsuario() != TipoUsuario.PROFESSOR) {
-            throw new InvalidOperationException("Usuário com ID " + dto.professorId() + " não é um professor");
+            throw new IllegalArgumentException("Usuário com ID " + dto.professorId() + " não é um professor");
         }
         
         Turma turma = new Turma();
@@ -48,13 +47,13 @@ public class TurmaService {
     
     public TurmaDTO obterTurmaPorId(Long id) {
         Turma turma = turmaRepository.findById(id)
-            .orElseThrow(() -> new ResourceNotFoundException("Turma não encontrada com ID: " + id));
+            .orElseThrow(() -> new EntityNotFoundException("Turma não encontrada com ID: " + id));
         return converterParaDTO(turma);
     }
     
     public TurmaDTO obterTurmaPorCodigo(String codigo) {
         Turma turma = turmaRepository.findByCodigoTurma(codigo)
-            .orElseThrow(() -> new ResourceNotFoundException("Turma não encontrada com código: " + codigo));
+            .orElseThrow(() -> new EntityNotFoundException("Turma não encontrada com código: " + codigo));
         return converterParaDTO(turma);
     }
     
@@ -66,7 +65,7 @@ public class TurmaService {
     
     public List<TurmaDTO> listarPorProfessor(Long professorId) {
         Usuario professor = usuarioRepository.findById(professorId)
-            .orElseThrow(() -> new ResourceNotFoundException("Professor não encontrado com ID: " + professorId));
+            .orElseThrow(() -> new EntityNotFoundException("Professor não encontrado com ID: " + professorId));
         return turmaRepository.findByProfessor(professor).stream()
             .filter(Turma::isAtiva)
             .map(this::converterParaDTO)
@@ -75,10 +74,10 @@ public class TurmaService {
     
     public TurmaDTO atualizarTurma(Long id, TurmaCriacaoDTO dto) {
         Turma turma = turmaRepository.findById(id)
-            .orElseThrow(() -> new ResourceNotFoundException("Turma não encontrada com ID: " + id));
+            .orElseThrow(() -> new EntityNotFoundException("Turma não encontrada com ID: " + id));
         
         Usuario professor = usuarioRepository.findById(dto.professorId())
-            .orElseThrow(() -> new ResourceNotFoundException("Professor não encontrado com ID: " + dto.professorId()));
+            .orElseThrow(() -> new EntityNotFoundException("Professor não encontrado com ID: " + dto.professorId()));
         
         turma.setNome(dto.nome());
         turma.setDescricao(dto.descricao());
@@ -90,7 +89,7 @@ public class TurmaService {
     
     public void deletarTurma(Long id) {
         Turma turma = turmaRepository.findById(id)
-            .orElseThrow(() -> new ResourceNotFoundException("Turma não encontrada com ID: " + id));
+            .orElseThrow(() -> new EntityNotFoundException("Turma não encontrada com ID: " + id));
         turma.setAtiva(false);
         turmaRepository.save(turma);
     }

@@ -10,8 +10,7 @@ import br.com.grupo.ClassInsight.dto.RespostaFeedbackDTO;
 import br.com.grupo.ClassInsight.repository.FeedbackRepository;
 import br.com.grupo.ClassInsight.repository.TurmaRepository;
 import br.com.grupo.ClassInsight.repository.UsuarioRepository;
-import br.com.grupo.ClassInsight.exception.ResourceNotFoundException;
-import br.com.grupo.ClassInsight.exception.InvalidOperationException;
+import br.com.grupo.ClassInsight.exception.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
@@ -34,10 +33,10 @@ public class FeedbackService {
     
     public FeedbackDTO criarFeedback(Long alunoId, FeedbackCriacaoDTO dto) {
         Usuario aluno = usuarioRepository.findById(alunoId)
-            .orElseThrow(() -> new ResourceNotFoundException("Aluno não encontrado com ID: " + alunoId));
+            .orElseThrow(() -> new EntityNotFoundException("Aluno não encontrado com ID: " + alunoId));
         
         Turma turma = turmaRepository.findById(dto.turmaId())
-            .orElseThrow(() -> new ResourceNotFoundException("Turma não encontrada com ID: " + dto.turmaId()));
+            .orElseThrow(() -> new EntityNotFoundException("Turma não encontrada com ID: " + dto.turmaId()));
         
         Feedback feedback = new Feedback();
         feedback.setTurma(turma);
@@ -53,13 +52,13 @@ public class FeedbackService {
     
     public FeedbackDTO obterFeedbackPorId(Long id) {
         Feedback feedback = feedbackRepository.findById(id)
-            .orElseThrow(() -> new ResourceNotFoundException("Feedback não encontrado com ID: " + id));
+            .orElseThrow(() -> new EntityNotFoundException("Feedback não encontrado com ID: " + id));
         return converterParaDTO(feedback);
     }
     
     public List<FeedbackDTO> listarFeedbackPorTurma(Long turmaId) {
         Turma turma = turmaRepository.findById(turmaId)
-            .orElseThrow(() -> new ResourceNotFoundException("Turma não encontrada com ID: " + turmaId));
+            .orElseThrow(() -> new EntityNotFoundException("Turma não encontrada com ID: " + turmaId));
         return feedbackRepository.findByTurma(turma).stream()
             .map(this::converterParaDTO)
             .collect(Collectors.toList());
@@ -67,7 +66,7 @@ public class FeedbackService {
     
     public List<FeedbackDTO> listarFeedbackPorAluno(Long alunoId) {
         Usuario aluno = usuarioRepository.findById(alunoId)
-            .orElseThrow(() -> new ResourceNotFoundException("Aluno não encontrado com ID: " + alunoId));
+            .orElseThrow(() -> new EntityNotFoundException("Aluno não encontrado com ID: " + alunoId));
         return feedbackRepository.findByAluno(aluno).stream()
             .map(this::converterParaDTO)
             .collect(Collectors.toList());
@@ -85,14 +84,14 @@ public class FeedbackService {
     
     public FeedbackDTO responderFeedback(Long feedbackId, Long professorId, RespostaFeedbackDTO dto) {
         Feedback feedback = feedbackRepository.findById(feedbackId)
-            .orElseThrow(() -> new ResourceNotFoundException("Feedback não encontrado com ID: " + feedbackId));
+            .orElseThrow(() -> new EntityNotFoundException("Feedback não encontrado com ID: " + feedbackId));
         
         if (feedback.getStatus() == StatusFeedback.FECHADO) {
-            throw new InvalidOperationException("Não é possível responder a um feedback fechado");
+            throw new IllegalArgumentException("Não é possível responder a um feedback fechado");
         }
         
         Usuario professor = usuarioRepository.findById(professorId)
-            .orElseThrow(() -> new ResourceNotFoundException("Professor não encontrado com ID: " + professorId));
+            .orElseThrow(() -> new EntityNotFoundException("Professor não encontrado com ID: " + professorId));
         
         feedback.setResposta(dto.resposta());
         feedback.setRespondidoPor(professor);
@@ -105,7 +104,7 @@ public class FeedbackService {
     
     public FeedbackDTO fecharFeedback(Long feedbackId) {
         Feedback feedback = feedbackRepository.findById(feedbackId)
-            .orElseThrow(() -> new ResourceNotFoundException("Feedback não encontrado com ID: " + feedbackId));
+            .orElseThrow(() -> new EntityNotFoundException("Feedback não encontrado com ID: " + feedbackId));
         
         feedback.setStatus(StatusFeedback.FECHADO);
         Feedback feedbackAtualizado = feedbackRepository.save(feedback);
@@ -114,7 +113,7 @@ public class FeedbackService {
     
     public void deletarFeedback(Long id) {
         feedbackRepository.findById(id)
-            .orElseThrow(() -> new ResourceNotFoundException("Feedback não encontrado com ID: " + id));
+            .orElseThrow(() -> new EntityNotFoundException("Feedback não encontrado com ID: " + id));
         feedbackRepository.deleteById(id);
     }
     
